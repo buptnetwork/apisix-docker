@@ -33,15 +33,17 @@ RUN wget https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-
     && tar -zxvf etcd-${ETCD_VERSION}-linux-amd64.tar.gz \
     && mv etcd-${ETCD_VERSION}-linux-amd64/* /usr/bin/
 
-
-WORKDIR /usr/local/apisix
+WORKDIR /usr/local/apisix-dashboard
 
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
 
-COPY ./config.yaml /usr/local/apisix/conf/config.yaml
+COPY --from=apache/apisix-dashboard:latest /usr/local/apisix-dashboard/ ./
 
-EXPOSE 9180 9080 9443 2379 2380
+#COPY ./config.yaml /usr/local/apisix/conf/config.yaml
+COPY ./conf.yaml /usr/local/apisix-dashboard/conf/conf.yaml
 
-CMD ["sh", "-c", "(nohup etcd >/tmp/etcd.log 2>&1 &) && sleep 10 && /usr/bin/apisix init && /usr/bin/apisix init_etcd && /usr/local/openresty/bin/openresty -p /usr/local/apisix -g 'daemon off;'"]
+EXPOSE 9180 9080 9443 2379 2380 9000
+
+CMD ["sh", "-c", "(nohup etcd >/tmp/etcd.log 2>&1 &) && sleep 10 && (/usr/local/apisix-dashboard/manager-api &) && cd /usr/local/apisix && /usr/bin/apisix init && /usr/bin/apisix init_etcd && /usr/local/openresty/bin/openresty -p /usr/local/apisix -g 'daemon off;'"]
 
 STOPSIGNAL SIGQUIT
