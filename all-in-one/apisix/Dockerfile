@@ -18,7 +18,7 @@
 ARG ENABLE_PROXY=false
 ARG ETCD_VERSION=v3.5.4
 
-# Build Apache APISIX
+# Build Apache APISIX,利用官方构建的镜像
 FROM apache/apisix:latest
 
 
@@ -37,10 +37,14 @@ WORKDIR /usr/local/apisix-dashboard
 
 ENV PATH=$PATH:/usr/local/openresty/luajit/bin:/usr/local/openresty/nginx/sbin:/usr/local/openresty/bin
 
+# 利用官方的apisix-dashboard镜像
 COPY --from=apache/apisix-dashboard:latest /usr/local/apisix-dashboard/ ./
 
 #COPY ./config.yaml /usr/local/apisix/conf/config.yaml
 COPY ./conf.yaml /usr/local/apisix-dashboard/conf/conf.yaml
+
+# 更新修改后的jwt-auth文件
+COPY ./jwt-auth.lua /usr/local/apisix/apisix/plugins/jwt-auth.lua
 
 EXPOSE 9180 9080 9443 2379 2380 9000
 

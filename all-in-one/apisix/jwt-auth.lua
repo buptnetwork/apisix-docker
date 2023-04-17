@@ -382,7 +382,7 @@ function _M.rewrite(conf, ctx)
     end
 
     consumer_mod.attach_consumer(ctx, consumer, consumer_conf)
-    core.request.set_header(ctx, "X-User-Code", consumer.consumer_name)
+    core.request.set_header(ctx, "X-User-Info", jwt_obj.raw_payload)
     core.log.info("hit jwt-auth rewrite")
 end
 
